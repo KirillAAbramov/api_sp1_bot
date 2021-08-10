@@ -17,11 +17,17 @@ bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 def parse_homework_status(homework):
     homework_name = homework['homework_name']
-    if homework['status'] == 'rejected':
-        verdict = 'К сожалению, в работе нашлись ошибки.'
-    elif homework['status'] == 'approved':
-        verdict = 'Ревьюеру всё понравилось, работа зачтена!'
-    return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
+    homework_statuses = {
+        'reviewing': 'Работа взята в ревью',
+        'rejected': 'К сожалению, в работе нашлись ошибки.',
+        'approved': 'Ревьюеру всё понравилось, работа зачтена!'
+    }
+    if homework['status'] in homework_statuses:
+        if homework['status'] == 'rejected' or 'approved':
+            return (f'У вас проверили работу "{homework_name}"!\n\n'
+                    f'{homework_statuses[homework["status"]]}')
+        else:
+            return f'{homework_statuses["reviewing"]}'
 
 
 def get_homeworks(current_timestamp):
@@ -58,10 +64,10 @@ def main():
                 'current_date',
                 current_timestamp
             )  # обновить timestamp
-            time.sleep(1200)
+            time.sleep(10)
 
         except Exception as e:
-            print(f'Бот упал с ошибкой: {e}')
+            logging.error(f'Бот упал с ошибкой: {e}')
             time.sleep(5)
 
 
